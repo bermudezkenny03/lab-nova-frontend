@@ -27,15 +27,9 @@ export interface UserDetail {
     addon_address: string
     address: string
     birthdate: string
-    city_id: string | null
     created_at: string
     deleted_at: string | null
-    dependents_over_17: number
-    dependents_under_17: number
-    greencard_valid_until: string
-    marital_status: string
     notes: string
-    parameter_payment_method_id: string | null
 }
 
 export interface Parameter {

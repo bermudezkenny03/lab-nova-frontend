@@ -64,6 +64,30 @@ const router = createRouter({
     },
 
     {
+      path: '/users/create-user',
+      name: 'createUser',
+      component: () => import('../views/Users/CreateUser.vue'),
+      meta: {
+        title: 'Create user',
+        requiresAuth: true,
+        module: 'users',
+        permission: 'create',
+      },
+    },
+
+    {
+      path: '/users/edit-user/:id',
+      name: 'editUser',
+      component: () => import('../views/Users/EditUser.vue'),
+      meta: {
+        title: 'Edit user',
+        requiresAuth: true,
+        module: 'users',
+        permission: 'edit',
+      },
+    },
+
+    {
       path: '/roles',
       name: 'Roles',
       component: () => import('../views/Settings/Settings.vue'),
@@ -93,7 +117,7 @@ const router = createRouter({
 
 // ROUTER GUARDS CON VERIFICACIÓN DE PERMISOS
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title} | JKD Clothing`
+  document.title = `${to.meta.title} | LabNova`
 
   const authStore = useAuthStore()
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
