@@ -2,6 +2,7 @@ import apiFetch from './apiService'
 
 const API_URL = import.meta.env.VITE_API_URL
 
+// User service to handle all user-related API calls
 export const userService = {
   async getUsers() {
     try {
@@ -23,6 +24,8 @@ export const userService = {
       return []
     }
   },
+
+  // Fetch general data for users (e.g., roles, departments)
   async getGeneralData() {
     try {
       const response = await apiFetch(`${API_URL}/users/general-data`, {
@@ -43,6 +46,8 @@ export const userService = {
       return []
     }
   },
+
+  // Create a new user with the provided payload
   async createUser(payload: object) {
     try {
       const response = await apiFetch(`${API_URL}/users`, {
@@ -66,6 +71,7 @@ export const userService = {
     }
   },
 
+  // Fetch a user by their ID
   async getUserById(id: string) {
     try {
       const response = await apiFetch(`${API_URL}/users/${id}`, {
@@ -87,6 +93,7 @@ export const userService = {
     }
   },
 
+  // Update an existing user with the provided payload and ID
   async updateUser(payload: object, id: string) {
     try {
       const response = await apiFetch(`${API_URL}/users/${id}`, {
@@ -110,6 +117,7 @@ export const userService = {
     }
   },
 
+  // Delete a user by their ID
   async deleteUser(id: string) {
     try {
       const response = await apiFetch(`${API_URL}/users/${id}`, {
