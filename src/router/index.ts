@@ -98,6 +98,42 @@ const router = createRouter({
       },
     },
 
+    /* Gestion de Catalogo */
+    {
+      path: '/categories',
+      name: 'Categories',
+      component: () => import('../views/Category/Category.vue'),
+      meta: {
+        title: 'Categories',
+        requiresAuth: true,
+        module: 'categories',
+      },
+    },
+
+    {
+      path: '/categories/create-category',
+      name: 'createCategory',
+      component: () => import('../views/Category/CreateCategory.vue'),
+      meta: {
+        title: 'Create category',
+        requiresAuth: true,
+        module: 'categories',
+        permission: 'create',
+      },
+    },
+
+    {
+      path: '/categories/edit-category/:id',
+      name: 'editCategory',
+      component: () => import('../views/Category/EditCategory.vue'),
+      meta: {
+        title: 'Edit category',
+        requiresAuth: true,
+        module: 'categories',
+        permission: 'edit',
+      },
+    },
+
     // ERROR ROUTES
     {
       path: '/error-404',

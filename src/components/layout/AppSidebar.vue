@@ -112,9 +112,10 @@ import {
   LayoutDashboardIcon,
   BoxCubeIcon,
   UserGroupIcon,
-  TaskIcon,
-  BoxIcon,
+  CalenderIcon,
+  BarChartIcon,
 } from '../../icons'
+
 import { useSidebar } from '@/composables/useSidebar'
 
 const route = useRoute()
@@ -122,14 +123,21 @@ const authStore = useAuthStore()
 
 const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar()
 
-// Solo iconos para módulos padre (los submódulos no tienen iconos)
+// Iconos para módulos padre
 const moduleIcons: Record<string, any> = {
-  // Solo módulos padre
-  'dashboard': LayoutDashboardIcon,
-  'catalog-management': BoxCubeIcon,      // Catálogo
-  'reservation-management': TaskIcon,           // Reservas
-  'report-management': BoxIcon,        // Reportes
-  'access-management': UserGroupIcon,     // Usuarios / Roles
+  dashboard: LayoutDashboardIcon,
+
+  // Assets
+  'catalog-management': BoxCubeIcon,
+
+  // Reservations
+  'reservation-management': CalenderIcon,
+
+  // Reports
+  'report-management': BarChartIcon,
+
+  // Administration
+  'access-management': UserGroupIcon,
 }
 
 const dynamicMenuGroups = computed(() => {
