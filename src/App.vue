@@ -3,6 +3,7 @@
     <SidebarProvider>
       <RouteLoader :isRouteLoading="isRouteLoading" />
       <RouterView />
+      <ToastContainer />
     </SidebarProvider>
   </ThemeProvider>
 </template>
@@ -12,6 +13,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ThemeProvider from './components/layout/ThemeProvider.vue'
 import SidebarProvider from './components/layout/SidebarProvider.vue'
+import ToastContainer from '@/components/toast/ToastContainer.vue'
 import RouteLoader from '@/components/common/RouteLoader.vue'
 
 const router = useRouter()

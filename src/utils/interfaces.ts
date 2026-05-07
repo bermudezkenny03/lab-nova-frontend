@@ -32,7 +32,15 @@ export interface UserDetail {
     notes: string
 }
 
-export interface Parameter {
-    id: number
-    name: string
+export interface Category {
+  id: number
+  name: string
+  slug: string
+  description: string | null
+  status: number | boolean
+  created_at?: string
+  updated_at?: string
+  deleted_at?: string | null
 }
+
+export type CategoryPayload = Pick<Category, 'name' | 'description' | 'status'>

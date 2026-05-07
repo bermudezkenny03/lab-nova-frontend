@@ -7,11 +7,11 @@
         <Button
           v-if="selectedItems.length > 0"
           size="sm"
-          variant="outline"
+          variant="danger-outline"
           :startIcon="TrashIcon"
           @click="openDeleteMultipleModal"
         >
-          Delete
+          Delete ({{ selectedItems.length }})
         </Button>
         <span class="text-gray-500 dark:text-gray-400">Show</span>
         <div class="relative z-20 bg-transparent">
