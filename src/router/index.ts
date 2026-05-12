@@ -133,8 +133,9 @@ const router = createRouter({
         permission: 'edit',
       },
     },
-
-     {
+    
+    /* Gestion de Equipos */
+    {
       path: '/equipment',
       name: 'equipment',
       component: () => import('../views/Equipment/Equipment.vue'),
