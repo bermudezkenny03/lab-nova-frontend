@@ -134,6 +134,17 @@ const router = createRouter({
       },
     },
 
+     {
+      path: '/equipment',
+      name: 'equipment',
+      component: () => import('../views/Equipment/Equipment.vue'),
+      meta: {
+        title: 'Equipment',
+        requiresAuth: true,
+        module: 'equipment',
+      },
+    },
+
     // ERROR ROUTES
     {
       path: '/error-404',
