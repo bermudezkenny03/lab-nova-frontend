@@ -155,12 +155,25 @@
                 </span>
               </div>
             </th>
+             <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
+              <div
+                class="flex items-center justify-between w-full cursor-pointer"
+                @click="sortBy('category')"
+              >
+                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">
+                  Category
+                </p>
+                <span class="flex flex-col gap-0.5">
+                  <SortIcon />
+                </span>
+              </div>
+            </th>
             <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
               <div
                 class="flex items-center justify-between w-full cursor-pointer"
                 @click="sortBy('description')"
               >
-                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">Description</p>
+                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">Stock</p>
                 <span class="flex flex-col gap-0.5">
                   <SortIcon />
                 </span>
@@ -247,19 +260,26 @@
               </p>
             </td>
             <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
-              <p class="text-gray-700 text-theme-sm dark:text-gray-400">{{ equipment.description }}</p>
+              <p class="text-gray-700 text-theme-sm dark:text-gray-400">
+                {{ equipment.category?.name }}
+              </p>
+            </td>
+            <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
+              <p class="text-gray-700 text-theme-sm dark:text-gray-400">{{ equipment.stock }}</p>
             </td>
             <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
               <span
                 :class="{
                   'bg-success-50 dark:bg-success-500/15 text-success-700 dark:text-success-500':
-                    equipment.is_active === true,
+                    equipment.status?.name === 'Disponible',
+                  'bg-warning-50 dark:bg-warning-500/15 text-warning-700 dark:text-warning-500':
+                    equipment.status?.name === 'Mantenimiento',
                   'bg-error-50 dark:bg-error-500/15 text-error-700 dark:text-error-500':
-                    equipment.is_active === false,
+                    equipment.status?.name === 'Fuera de servicio',
                 }"
                 class="rounded-full px-2 py-0.5 text-theme-xs font-medium"
               >
-                {{ equipment.is_active === true ? 'Active' : 'Inactive' }}
+                {{ equipment.status?.name }}
               </span>
             </td>
             <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
