@@ -133,8 +133,8 @@ const router = createRouter({
         permission: 'edit',
       },
     },
-    
-    /* Gestion de Equipos */
+
+    /* Gestion de Equipos  */
     {
       path: '/equipment',
       name: 'equipment',
