@@ -13,13 +13,13 @@ export const equipmentService = {
                 },
             })
             if (!response.ok) {
-                throw new Error('Error in getEquipments')
+                throw new Error(`HTTP error! status: ${response.status}`)
             }
             const data = await response.json()
             return data
         } catch (error) {
             console.error('Error in getEquipments:', error)
-            return []
+            throw error
         }
     },
 }

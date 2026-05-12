@@ -450,9 +450,10 @@ const loading = ref(true)
 const fetchEquipments = async () => {
   try {
     const response = await equipmentService.getEquipments()
-    updateData(response.data)
+    updateData(response?.data || [])
   } catch (error) {
     console.error('Error fetching equipments:', error)
+    updateData([])
   } finally {
     loading.value = false
   }
