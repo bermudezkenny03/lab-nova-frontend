@@ -3,8 +3,12 @@
     <PageBreadcrumb :pageTitle="currentPageTitle" />
 
     <div class="space-y-5 sm:space-y-6">
-      <ComponentCard title="Create category">
-        <CategoryForm ref="categoryFormRef" />
+      <ComponentCard title="Create equipment">
+        <EquipmentForm
+          ref="equipmentFormRef"
+          :categories="equipmentStore.categories"
+          :equipment-statuses="equipmentStore.statuses"
+        />
 
         <div class="mt-5 flex items-center justify-end gap-3">
           <button
@@ -29,28 +33,27 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import ComponentCard from '@/components/common/ComponentCard.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import CategoryForm from '@/components/category/CategoryForm.vue'
+import EquipmentForm from '@/components/equipment/EquipmentForm.vue'
 import router from '@/router'
-import { categorieService } from '@/services/categorieService'
-import { useCategoryStore } from '@/stores/categoryStore'
+import { equipmentService } from '@/services/equipmentService'
+import { useEquipmentStore } from '@/stores/equipmentStore'
 import { useToastStore } from '@/stores/toastStore'
-import type { CategoryPayload } from '@/utils/interfaces'
 
-const currentPageTitle = ref('Create category')
-const categoryFormRef = ref<InstanceType<typeof CategoryForm> | null>(null)
+const currentPageTitle = ref('Create equipment')
+const equipmentFormRef = ref<InstanceType<typeof EquipmentForm> | null>(null)
 const submitting = ref(false)
 
 const toast = useToastStore()
-const categoryStore = useCategoryStore()
+const equipmentStore = useEquipmentStore()
 
 const submitForm = async () => {
-  if (!categoryFormRef.value) return
+  if (!equipmentFormRef.value) return
 
-  const validation = await categoryFormRef.value.validate()
+  const validation = await equipmentFormRef.value.validate()
 
   if (!validation.valid) {
     toast.warning('Please check the form fields.')
@@ -60,21 +63,14 @@ const submitForm = async () => {
   try {
     submitting.value = true
 
-    const categoryData = categoryFormRef.value.getFormData()
+    const formData = equipmentFormRef.value.getFormData()
+    const response = await equipmentService.createEquipment(formData)
 
-    const payload: CategoryPayload = {
-      name: categoryData.name,
-      description: categoryData.description,
-      status: categoryData.status,
-    }
-
-    const response = await categorieService.createCategory(payload)
-
-    toast.success(response.message || 'Category created successfully!')
-    await categoryStore.fetchCategories()
+    toast.success(response?.message || 'Equipment created successfully!')
+    await equipmentStore.fetchEquipments()
     redirectToHome()
   } catch (error: any) {
-    let errorMsg = 'Error creating category'
+    let errorMsg = 'Error creating equipment'
 
     if (error?.errors) {
       const validationMessages = Object.values(error.errors).flat().join('\n')
@@ -84,13 +80,17 @@ const submitForm = async () => {
     }
 
     toast.error(errorMsg)
-    console.error('Error creating category:', error)
+    console.error('Error creating equipment:', error)
   } finally {
     submitting.value = false
   }
 }
 
 const redirectToHome = () => {
-  router.push({ name: 'Categories' })
+  router.push({ name: 'equipment' })
 }
+
+onMounted(async () => {
+  await equipmentStore.fetchGeneralData()
+})
 </script>

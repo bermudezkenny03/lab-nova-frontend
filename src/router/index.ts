@@ -145,6 +145,29 @@ const router = createRouter({
         module: 'equipment',
       },
     },
+    {
+      path: '/  equipment/create-equipment',
+      name: 'createEquipment',
+      component: () => import('../views/Equipment/EquipmentCreate.vue'),
+      meta: {
+        title: 'Create Equipment',
+        requiresAuth: true,
+        module: 'equipment',
+        permission: 'create',
+      },
+    },
+    
+    {
+      path: '/equipment/edit-equipment/:id',
+      name: 'editEquipment',
+      component: () => import('../views/Equipment/EquipmentEdit.vue'),
+      meta: {
+        title: 'Edit Equipment',
+        requiresAuth: true,
+        module: 'equipment',
+        permission: 'edit',
+      },
+    },
 
     // ERROR ROUTES
     {

@@ -81,10 +81,10 @@
     </div>
 
     <div class="max-w-full overflow-x-auto">
-      <div v-if="loading" class="w-full min-w-full flex justify-center">
+      <div v-if="props.loading" class="w-full min-w-full flex justify-center">
         <Spinner />
       </div>
-      <table v-if="!loading" class="w-full min-w-full">
+      <table v-if="!props.loading" class="w-full min-w-full">
         <thead>
           <tr>
             <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
@@ -405,16 +405,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTable } from '@/utils/useTable'
 import Button from '@/components/ui/Button.vue'
 import { useToastStore } from '@/stores/toastStore'
-import Spinner from '@/components/common/Spinner.vue'
 import { useCommonStore } from '@/stores/commonStore'
+import { useCategoryStore } from '@/stores/categoryStore'
+import Spinner from '@/components/common/Spinner.vue'
 import { SortIcon, PlusIcon, TrashIcon } from '@/icons'
-import { categorieService } from '@/services/categorieService'
 import ModalWarning from '@/components/common/ModalWarning.vue'
+import type { Category } from '@/utils/interfaces'
+
+const props = defineProps<{
+  categories: Category[]
+  loading: boolean
+}>()
 
 const {
   data,
@@ -446,15 +452,14 @@ const {
   perPage: 10,
 })
 
-const loading = ref(true)
 const router = useRouter()
+const toastStore = useToastStore()
+const commonStore = useCommonStore()
+const categoryStore = useCategoryStore()
 
 const warningMessage = ref('')
 const selectedItemToDelete = ref<any>(null)
 const isWarningModalOpen = ref(false)
-
-const commonStore = useCommonStore()
-const toastStore = useToastStore()
 
 const redirectToCreate = () => {
   router.push({ name: 'createCategory' })
@@ -484,36 +489,15 @@ const deleteMultipleItems = async () => {
     commonStore.deleting = true
     const itemsToDelete = selectedItems.value
 
-    const deletePromises = itemsToDelete.map((category: any) => {
-      return categorieService
-        .deleteCategory(category.id)
-        .then((response) => {
-          console.log(`Item ${category.name} deleted successfully`)
-          return { success: true, categoryId: category.id, response }
-        })
-        .catch((error) => {
-          console.error(`Error deleting category ${category.name}:`, error)
-          return { success: false, categoryId: category.id, error }
-        })
-    })
-
-    const results = await Promise.allSettled(deletePromises)
-    const successfulDeletions = results.filter(
-      (result) => result.status === 'fulfilled' && result.value.success,
-    ).length
-
-    const successfullyDeletedIds = results
-      .filter((result) => result.status === 'fulfilled' && result.value.success)
-      .map((result: any) => result.value.categoryId)
-
-    updateData(data.value.filter((category: any) => !successfullyDeletedIds.includes(category.id)))
+    const idsToDelete = itemsToDelete.map((item: any) => item.id)
+    const successCount = await categoryStore.deleteMultipleCategories(idsToDelete)
 
     closeWarningModal()
-    if (successfulDeletions === itemsToDelete.length) {
+    if (successCount === itemsToDelete.length) {
       toastStore.success('All categories deleted successfully!')
-    } else if (successfulDeletions > 0) {
+    } else if (successCount > 0) {
       toastStore.error(
-        `${successfulDeletions} out of ${itemsToDelete.length} categories deleted successfully.`,
+        `${successCount} out of ${itemsToDelete.length} categories deleted successfully.`,
       )
     } else {
       toastStore.error('Failed to delete categories. Please try again.')
@@ -528,10 +512,13 @@ const deleteMultipleItems = async () => {
 const deleteItem = async () => {
   try {
     commonStore.deleting = true
-    const response = await categorieService.deleteCategory(selectedItemToDelete.value.id.toString())
-    updateData(data.value.filter((category: any) => category.id !== selectedItemToDelete.value.id))
+    const success = await categoryStore.deleteCategory(selectedItemToDelete.value.id)
     closeWarningModal()
-    toastStore.success(response.message || 'Category deleted successfully!')
+    if (success) {
+      toastStore.success('Category deleted successfully!')
+    } else {
+      toastStore.error('Failed to delete category. Please try again.')
+    }
   } catch (error) {
     console.error('Error deleting category:', error)
   } finally {
@@ -539,18 +526,11 @@ const deleteItem = async () => {
   }
 }
 
-const fetchCategories = async () => {
-  try {
-    const response = await categorieService.getCategories()
-    updateData(response.data)
-  } catch (error) {
-    console.error('Error fetching categories:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(async () => {
-  await fetchCategories()
-})
+watch(
+  () => props.categories,
+  (newCategories) => {
+    updateData(newCategories)
+  },
+  { immediate: true },
+)
 </script>
