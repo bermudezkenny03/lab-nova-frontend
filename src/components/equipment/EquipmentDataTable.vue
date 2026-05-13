@@ -4,6 +4,15 @@
       class="flex flex-col gap-2 px-4 py-4 border border-b-0 border-gray-200 rounded-b-none rounded-xl dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between"
     >
       <div class="flex items-center gap-3">
+        <Button
+          v-if="selectedItems.length > 0"
+          size="sm"
+          variant="danger-outline"
+          :startIcon="TrashIcon"
+          @click="openDeleteMultipleModal"
+        >
+          Delete ({{ selectedItems.length }})
+        </Button>
         <span class="text-gray-500 dark:text-gray-400">Show</span>
         <div class="relative z-20 bg-transparent">
           <select
@@ -65,17 +74,17 @@
             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-11 pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[300px]"
           />
         </div>
-        <Button size="sm" variant="primary" :startIcon="PlusIcon">
+        <Button size="sm" variant="primary" :startIcon="PlusIcon" @click="redirectToCreate">
           New
         </Button>
       </div>
     </div>
 
     <div class="max-w-full overflow-x-auto">
-      <div v-if="loading" class="w-full min-w-full flex justify-center">
+      <div v-if="props.loading" class="w-full min-w-full flex justify-center">
         <Spinner />
       </div>
-      <table v-if="!loading" class="w-full min-w-full">
+      <table v-if="!props.loading" class="w-full min-w-full">
         <thead>
           <tr>
             <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
@@ -134,6 +143,17 @@
             <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
               <div
                 class="flex items-center justify-between w-full cursor-pointer"
+                @click="sortBy('image')"
+              >
+                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">Image</p>
+                <span class="flex flex-col gap-0.5">
+                  <SortIcon />
+                </span>
+              </div>
+            </th>
+            <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
+              <div
+                class="flex items-center justify-between w-full cursor-pointer"
                 @click="sortBy('name')"
               >
                 <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">Name</p>
@@ -147,22 +167,18 @@
                 class="flex items-center justify-between w-full cursor-pointer"
                 @click="sortBy('code')"
               >
-                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">
-                  Code
-                </p>
+                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">Code</p>
                 <span class="flex flex-col gap-0.5">
                   <SortIcon />
                 </span>
               </div>
             </th>
-             <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
+            <th class="px-4 py-3 text-left border border-gray-100 dark:border-gray-800">
               <div
                 class="flex items-center justify-between w-full cursor-pointer"
                 @click="sortBy('category')"
               >
-                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">
-                  Category
-                </p>
+                <p class="font-medium text-gray-700 text-theme-xs dark:text-gray-400">Category</p>
                 <span class="flex flex-col gap-0.5">
                   <SortIcon />
                 </span>
@@ -252,6 +268,11 @@
               </div>
             </td>
             <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
+              <div class="h-[50px] w-[50px] overflow-hidden rounded-md">
+                <img :src="equipment.images[0]?.url" :alt="equipment.name" />
+              </div>
+            </td>
+            <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
               <p class="text-gray-700 text-theme-sm dark:text-gray-400">{{ equipment.name }}</p>
             </td>
             <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
@@ -285,6 +306,7 @@
             <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
               <div class="flex items-center w-full gap-2">
                 <button
+                  @click="openDeleteModal(equipment)"
                   class="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500"
                 >
                   <svg
@@ -304,6 +326,7 @@
                   </svg>
                 </button>
                 <button
+                  @click="redirectToEdit(equipment.id)"
                   class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90"
                 >
                   <svg
@@ -404,16 +427,36 @@
       </div>
     </div>
   </div>
+
+  <ModalWarning
+    v-if="isWarningModalOpen"
+    :message="warningMessage"
+    @close="closeWarningModal"
+    @delete="selectedItems.length > 0 ? deleteMultipleItems() : deleteItem()"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useTable } from '@/utils/useTable'
 import Button from '@/components/ui/Button.vue'
 import Spinner from '@/components/common/Spinner.vue'
+import { SortIcon, PlusIcon, TrashIcon } from '@/icons'
+import { useRouter } from 'vue-router'
+import { useToastStore } from '@/stores/toastStore'
 import { useCommonStore } from '@/stores/commonStore'
-import { SortIcon, PlusIcon } from '@/icons'
-import { equipmentService } from '@/services/equipmentService'
+import { useEquipmentStore } from '@/stores/equipmentStore'
+import ModalWarning from '@/components/common/ModalWarning.vue'
+import type { Equipment } from '@/utils/interfaces'
+
+const props = defineProps<{
+  equipments: Equipment[]
+  loading: boolean
+}>()
+
+const emit = defineEmits<{
+  refresh: []
+}>()
 
 const {
   data,
@@ -445,20 +488,85 @@ const {
   perPage: 10,
 })
 
-const loading = ref(true)
+const router = useRouter()
+const toastStore = useToastStore()
+const commonStore = useCommonStore()
+const equipmentStore = useEquipmentStore()
 
-const fetchEquipments = async () => {
+const warningMessage = ref('')
+const selectedItemToDelete = ref<any>(null)
+const isWarningModalOpen = ref(false)
+
+const redirectToCreate = () => {
+  router.push({ name: 'createEquipment' })
+}
+
+const redirectToEdit = (id: number) => {
+  router.push({ name: 'editEquipment', params: { id } })
+}
+
+const openDeleteModal = (equipment: any) => {
+  selectedItemToDelete.value = equipment
+  isWarningModalOpen.value = true
+  warningMessage.value = `Are you sure you want to delete equipment ${equipment.name}?`
+}
+
+const openDeleteMultipleModal = () => {
+  isWarningModalOpen.value = true
+  warningMessage.value = `Are you sure you want to delete these ${selectedItems.value.length} equipments?`
+}
+
+const closeWarningModal = () => {
+  isWarningModalOpen.value = false
+}
+
+const deleteMultipleItems = async () => {
   try {
-    const response = await equipmentService.getEquipments()
-    updateData(response.data)
+    commonStore.deleting = true
+    const itemsToDelete = selectedItems.value
+
+    const idsToDelete = itemsToDelete.map((item: any) => item.id)
+    const successCount = await equipmentStore.deleteMultipleEquipments(idsToDelete)
+
+    closeWarningModal()
+    if (successCount === itemsToDelete.length) {
+      toastStore.success('All equipments deleted successfully!')
+    } else if (successCount > 0) {
+      toastStore.error(
+        `${successCount} out of ${itemsToDelete.length} equipments deleted successfully.`,
+      )
+    } else {
+      toastStore.error('Failed to delete equipments. Please try again.')
+    }
   } catch (error) {
-    console.error('Error fetching equipments:', error)
+    console.error('Error deleting equipments:', error)
   } finally {
-    loading.value = false
+    commonStore.deleting = false
   }
 }
 
-onMounted(async () => {
-  await fetchEquipments()
-})
+const deleteItem = async () => {
+  try {
+    commonStore.deleting = true
+    const success = await equipmentStore.deleteEquipment(selectedItemToDelete.value.id)
+    closeWarningModal()
+    if (success) {
+      toastStore.success('Equipment deleted successfully!')
+    } else {
+      toastStore.error('Failed to delete equipment. Please try again.')
+    }
+  } catch (error) {
+    console.error('Error deleting equipment:', error)
+  } finally {
+    commonStore.deleting = false
+  }
+}
+
+watch(
+  () => props.equipments,
+  (newEquipments) => {
+    updateData(newEquipments)
+  },
+  { immediate: true },
+)
 </script>

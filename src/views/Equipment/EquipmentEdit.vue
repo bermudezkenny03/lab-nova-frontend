@@ -7,8 +7,13 @@
     </div>
 
     <div v-if="isReady" class="space-y-5 sm:space-y-6">
-      <ComponentCard title="Edit category">
-        <CategoryForm ref="categoryFormRef" :category="category" />
+      <ComponentCard title="Edit equipment">
+        <EquipmentForm
+          ref="equipmentFormRef"
+          :equipment="equipment"
+          :categories="equipmentStore.categories"
+          :equipment-statuses="equipmentStore.statuses"
+        />
 
         <div class="mt-5 flex items-center justify-end gap-3">
           <button
@@ -38,61 +43,55 @@ import { useRoute } from 'vue-router'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import ComponentCard from '@/components/common/ComponentCard.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import CategoryForm from '@/components/category/CategoryForm.vue'
+import EquipmentForm from '@/components/equipment/EquipmentForm.vue'
 import Spinner from '@/components/common/Spinner.vue'
 import router from '@/router'
-import { categorieService } from '@/services/categorieService'
-import { useCategoryStore } from '@/stores/categoryStore'
+import { equipmentService } from '@/services/equipmentService'
+import { useEquipmentStore } from '@/stores/equipmentStore'
 import { useToastStore } from '@/stores/toastStore'
-import type { Category, CategoryPayload } from '@/utils/interfaces'
+import type { Equipment } from '@/utils/interfaces'
 
 const route = useRoute()
 const toast = useToastStore()
-const categoryStore = useCategoryStore()
+const equipmentStore = useEquipmentStore()
 
-const currentPageTitle = ref('Edit category')
-const categoryFormRef = ref<InstanceType<typeof CategoryForm> | null>(null)
-
-const category = ref<Category | null>(null)
+const currentPageTitle = ref('Edit equipment')
+const equipmentFormRef = ref<InstanceType<typeof EquipmentForm> | null>(null)
+const equipment = ref<Equipment | null>(null)
 const isReady = ref(false)
 const submitting = ref(false)
 
-const getCategory = async () => {
+const getEquipment = async () => {
   try {
-    isReady.value = false
-
     const id = Number(route.params.id)
 
     if (!id) {
-      toast.error('Invalid category ID')
+      toast.error('Invalid equipment ID')
       redirectToHome()
       return
     }
 
-    const response = await categorieService.getCategory(id)
+    const response = await equipmentService.getEquipment(id)
 
-    category.value = response.category
-    currentPageTitle.value = `Edit category: ${response.category.name}`
-  } catch (error: any) {
-    let errorMsg = 'Error loading category'
-
-    if (error?.message) {
-      errorMsg = error.message
+    if (!response?.equipment) {
+      toast.error('Equipment not found')
+      redirectToHome()
+      return
     }
 
-    toast.error(errorMsg)
-    console.error('Error loading category:', error)
-
+    equipment.value = response.equipment
+    currentPageTitle.value = `Edit equipment: ${response.equipment.name}`
+  } catch (error: any) {
+    toast.error(error?.message || 'Error loading equipment')
+    console.error('Error loading equipment:', error)
     redirectToHome()
-  } finally {
-    isReady.value = true
   }
 }
 
 const submitForm = async () => {
-  if (!categoryFormRef.value || !category.value) return
+  if (!equipmentFormRef.value || !equipment.value) return
 
-  const validation = await categoryFormRef.value.validate()
+  const validation = await equipmentFormRef.value.validate()
 
   if (!validation.valid) {
     toast.warning('Please check the form fields.')
@@ -102,21 +101,14 @@ const submitForm = async () => {
   try {
     submitting.value = true
 
-    const categoryData = categoryFormRef.value.getFormData()
+    const formData = equipmentFormRef.value.getFormData()
+    const response = await equipmentService.updateEquipment(equipment.value.id, formData)
 
-    const payload: CategoryPayload = {
-      name: categoryData.name,
-      description: categoryData.description,
-      status: categoryData.status,
-    }
-
-    const response = await categorieService.updateCategory(category.value.id, payload)
-
-    toast.success(response.message || 'Category updated successfully!')
-    await categoryStore.fetchCategories()
+    toast.success(response?.message || 'Equipment updated successfully!')
+    await equipmentStore.fetchEquipments()
     redirectToHome()
   } catch (error: any) {
-    let errorMsg = 'Error updating category'
+    let errorMsg = 'Error updating equipment'
 
     if (error?.errors) {
       const validationMessages = Object.values(error.errors).flat().join('\n')
@@ -126,17 +118,19 @@ const submitForm = async () => {
     }
 
     toast.error(errorMsg)
-    console.error('Error updating category:', error)
+    console.error('Error updating equipment:', error)
   } finally {
     submitting.value = false
   }
 }
 
 const redirectToHome = () => {
-  router.push({ name: 'Categories' })
+  router.push({ name: 'equipment' })
 }
 
 onMounted(async () => {
-  await getCategory()
+  isReady.value = false
+  await Promise.all([equipmentStore.fetchGeneralData(), getEquipment()])
+  isReady.value = true
 })
 </script>
