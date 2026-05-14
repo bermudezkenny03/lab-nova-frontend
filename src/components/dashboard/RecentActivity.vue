@@ -70,7 +70,7 @@
               </span>
             </td>
             <td class="py-3 whitespace-nowrap">
-              <p class="text-gray-500 text-theme-xs dark:text-gray-400">{{ item.created_at }}</p>
+              <p class="text-gray-500 text-theme-xs dark:text-gray-400">{{ timeAgo(item.created_at) }}</p>
             </td>
           </tr>
           <tr v-if="store.recentActivity.length === 0">
@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import { useDashboardStore } from '@/stores/dashboardStore'
+import { timeAgo } from '@/utils/dateUtils'
 
 const store = useDashboardStore()
 </script>

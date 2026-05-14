@@ -156,7 +156,7 @@
       <div class="relative">
         <flat-pickr
           v-model="time"
-          :config="flatpickrTimeConfig"
+          :config="flatpickrTimeOnlyConfig"
           class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
           placeholder="Select time"
         />
@@ -218,6 +218,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import flatPickr from 'vue-flatpickr-component'
+import { flatpickrConfig, flatpickrTimeOnlyConfig } from '@/utils/dateUtils'
 
 const showPassword = ref(false)
 
@@ -232,22 +233,6 @@ const formData = reactive({
 })
 
 const date = ref(null)
-
-const flatpickrConfig = {
-  dateFormat: 'Y-m-d',
-  altInput: true,
-  altFormat: 'F j, Y',
-  wrap: true,
-}
-
-const flatpickrTimeConfig = {
-  enableTime: true,
-  noCalendar: true,
-  dateFormat: 'H:i',
-  time_24hr: false,
-  minuteIncrement: 1,
-  wrap: false,
-}
 
 const time = ref(null)
 </script>

@@ -31,6 +31,16 @@ const router = createRouter({
     },
 
     {
+      path: '/profile',
+      name: 'Profile',
+      component: () => import('../views/Profile/Profile.vue'),
+      meta: {
+        title: 'My Profile',
+        requiresAuth: true,
+      },
+    },
+
+    {
       path: '/dashboard',
       name: 'Dashboard',
       component: () => import('../views/LabDashboard.vue'),
@@ -166,6 +176,73 @@ const router = createRouter({
         requiresAuth: true,
         module: 'equipment',
         permission: 'edit',
+      },
+    },
+
+    /* Gestion de Reservas */
+    {
+      path: '/reservations',
+      name: 'Reservations',
+      component: () => import('../views/Reservations/Reservations.vue'),
+      meta: {
+        title: 'Reservations',
+        requiresAuth: true,
+        module: 'reservations',
+      },
+    },
+    {
+      path: '/reservations/create',
+      name: 'createReservation',
+      component: () => import('../views/Reservations/CreateReservation.vue'),
+      meta: {
+        title: 'Create Reservation',
+        requiresAuth: true,
+        module: 'reservations',
+        permission: 'create',
+      },
+    },
+    {
+      path: '/reservations/edit/:id',
+      name: 'editReservation',
+      component: () => import('../views/Reservations/EditReservation.vue'),
+      meta: {
+        title: 'Edit Reservation',
+        requiresAuth: true,
+        module: 'reservations',
+        permission: 'edit',
+      },
+    },
+
+    /* Gestion de Reportes */
+    {
+      path: '/report-requests',
+      name: 'ReportRequests',
+      component: () => import('../views/Reports/ReportRequests.vue'),
+      meta: {
+        title: 'Report Requests',
+        requiresAuth: true,
+        module: 'report-requests',
+      },
+    },
+    {
+      path: '/report-requests/create',
+      name: 'createReportRequest',
+      component: () => import('../views/Reports/CreateReportRequest.vue'),
+      meta: {
+        title: 'Create Report Request',
+        requiresAuth: true,
+        module: 'report-requests',
+        permission: 'create',
+      },
+    },
+    {
+      path: '/reports',
+      name: 'Reports',
+      component: () => import('../views/Reports/Reports.vue'),
+      meta: {
+        title: 'Reports',
+        requiresAuth: true,
+        module: 'reports',
       },
     },
 

@@ -348,6 +348,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import flatPickr from 'vue-flatpickr-component'
+import { flatpickrConfig } from '@/utils/dateUtils'
 const form = reactive({
   firstName: '',
   lastName: '',
@@ -375,11 +376,4 @@ const resetForm = () => {
 }
 
 const date = ref(null)
-
-const flatpickrConfig = {
-  dateFormat: 'Y-m-d',
-  altInput: true,
-  altFormat: 'F j, Y',
-  wrap: true,
-}
 </script>

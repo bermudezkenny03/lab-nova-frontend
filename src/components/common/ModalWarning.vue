@@ -82,7 +82,7 @@
                 </svg>
               </span>
               <span>
-                {{ commonStore.deleting ? 'Deleting...' : 'Yes, delete it' }}
+                {{ commonStore.deleting ? 'Processing...' : (approveLabel || 'Yes, delete it') }}
               </span>
             </button>
             <button
@@ -106,6 +106,7 @@ const commonStore = useCommonStore()
 
 const props = defineProps<{
   message: string
+  approveLabel?: string
 }>()
 
 const emit = defineEmits(['close', 'delete'])

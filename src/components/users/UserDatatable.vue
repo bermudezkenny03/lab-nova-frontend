@@ -399,7 +399,7 @@
               </td>
               <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
                 <p class="text-gray-700 text-theme-sm dark:text-gray-400">
-                  {{ person.user_detail?.birthdate }}
+                  {{ formatDateShort(person.user_detail?.birthdate) }}
                 </p>
               </td>
               <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
@@ -567,6 +567,7 @@ import ModalSuccess from '@/components/common/ModalSuccess.vue'
 import { useCommonStore } from '@/stores/commonStore'
 import Spinner from '../common/Spinner.vue'
 import { useTable } from '@/utils/useTable'
+import { formatDateShort } from '@/utils/dateUtils'
 
 const commonStore = useCommonStore()
 const loading = ref(false)

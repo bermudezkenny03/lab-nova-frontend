@@ -101,6 +101,15 @@ export const useAuthStore = defineStore('authStore', {
             this.user = null
             this.modules = []
         },
+
+        async fetchUser(): Promise<void> {
+            try {
+                const { user } = await authService.getMe()
+                this.user = user
+            } catch (error) {
+                console.error('Error fetching user:', error)
+            }
+        },
     },
 
     persist: true,

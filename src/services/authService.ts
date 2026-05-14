@@ -31,4 +31,18 @@ export const authService = {
       throw new Error(errorData.error || 'Logout failed')
     }
   },
+
+  async getMe() {
+    const response = await apiFetch(`${API_URL}/me`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || 'Failed to fetch user')
+    }
+
+    return await response.json()
+  },
 }
