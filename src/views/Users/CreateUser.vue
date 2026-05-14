@@ -119,7 +119,7 @@ const submitForm = async () => {
       status: true,
       role_id: userData.roleId,
 
-      gender: userData.gender,
+      gender_type_id: userData.genderTypeId,
       birthdate: userData.birthDate,
       address: userData.address,
       addon_address: userData.addonAddress,

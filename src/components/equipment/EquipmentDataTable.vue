@@ -5,7 +5,7 @@
     >
       <div class="flex items-center gap-3">
         <Button
-          v-if="selectedItems.length > 0"
+          v-if="selectedItems.length > 0 && canDelete"
           size="sm"
           variant="danger-outline"
           :startIcon="TrashIcon"
@@ -74,7 +74,13 @@
             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-11 pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[300px]"
           />
         </div>
-        <Button size="sm" variant="primary" :startIcon="PlusIcon" @click="redirectToCreate">
+        <Button
+          v-if="canCreate"
+          size="sm"
+          variant="primary"
+          :startIcon="PlusIcon"
+          @click="redirectToCreate"
+        >
           New
         </Button>
       </div>
@@ -306,6 +312,7 @@
             <td class="px-4 py-3 border border-gray-100 dark:border-gray-800">
               <div class="flex items-center w-full gap-2">
                 <button
+                  v-if="canDelete"
                   @click="openDeleteModal(equipment)"
                   class="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500"
                 >
@@ -326,6 +333,7 @@
                   </svg>
                 </button>
                 <button
+                  v-if="canEdit"
                   @click="redirectToEdit(equipment.id)"
                   class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90"
                 >
@@ -446,6 +454,7 @@ import { useRouter } from 'vue-router'
 import { useToastStore } from '@/stores/toastStore'
 import { useCommonStore } from '@/stores/commonStore'
 import { useEquipmentStore } from '@/stores/equipmentStore'
+import { useAuthStore } from '@/stores/authStore'
 import ModalWarning from '@/components/common/ModalWarning.vue'
 import type { Equipment } from '@/utils/interfaces'
 
@@ -492,6 +501,11 @@ const router = useRouter()
 const toastStore = useToastStore()
 const commonStore = useCommonStore()
 const equipmentStore = useEquipmentStore()
+const authStore = useAuthStore()
+
+const canCreate = authStore.hasPermission('equipment', 'create')
+const canEdit = authStore.hasPermission('equipment', 'edit')
+const canDelete = authStore.hasPermission('equipment', 'delete')
 
 const warningMessage = ref('')
 const selectedItemToDelete = ref<any>(null)

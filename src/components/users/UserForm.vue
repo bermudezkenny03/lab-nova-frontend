@@ -49,22 +49,24 @@
         </label>
         <div class="relative z-20 bg-transparent">
           <select
-            v-model="gender"
+            v-model="genderTypeId"
             class="w-full px-4 py-3 text-sm text-gray-800 bg-transparent border rounded-lg appearance-none dark:bg-dark-900 h-11 bg-none shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
             :class="{
-              'text-gray-500 dark:text-gray-400': gender,
-              'border-red-500': errors.gender,
-              'border-gray-300': !errors.gender,
+              'text-gray-500 dark:text-gray-400': genderTypeId,
+              'border-red-500': errors.genderTypeId,
+              'border-gray-300': !errors.genderTypeId,
             }"
           >
-            <option value="Male" class="text-gray-500 dark:bg-gray-900 dark:text-gray-400">
-              Male
+            <option :value="null" class="text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+              Select gender
             </option>
-            <option value="Female" class="text-gray-500 dark:bg-gray-900 dark:text-gray-400">
-              Female
-            </option>
-            <option value="Others" class="text-gray-500 dark:bg-gray-900 dark:text-gray-400">
-              Others
+            <option
+              v-for="g in genderTypes"
+              :key="g.id"
+              :value="g.id"
+              class="text-gray-500 dark:bg-gray-900 dark:text-gray-400"
+            >
+              {{ g.name }}
             </option>
           </select>
           <span
@@ -88,7 +90,7 @@
             </svg>
           </span>
         </div>
-        <span class="text-red-500 text-sm">{{ errors.gender }}</span>
+        <span class="text-red-500 text-sm">{{ errors.genderTypeId }}</span>
       </div>
 
       <!-- Date Picker -->
@@ -318,6 +320,7 @@ import * as yup from 'yup'
 import { useField, useForm } from 'vee-validate'
 import { userService } from '@/services/userService'
 import SpinnerSelect from '../common/SpinnerSelect.vue'
+import { flatpickrConfig, toApiDateString } from '@/utils/dateUtils'
 
 const props = defineProps({
   user: {
@@ -328,18 +331,13 @@ const props = defineProps({
 
 const cities = ref<any>([])
 const roles = ref<any>([])
+const genderTypes = ref<any>([])
 const loading = ref(false)
-const flatpickrConfig = {
-  dateFormat: 'Y-m-d',
-  altInput: true,
-  altFormat: 'F j, Y',
-  wrap: true,
-}
 
 const schema = yup.object({
   name: yup.string().required('Name is required'),
   lastName: yup.string().required('Last name is required'),
-  gender: yup.string().required('Gender is required'),
+  genderTypeId: yup.number().required('Gender is required').nullable(),
   phone: yup.string().required('Phone is required'),
   email: yup.string().email('Email is invalid').required('Email is required'),
   password: yup
@@ -357,7 +355,7 @@ const { errors, validate } = useForm({
     id: props.user?.id || null,
     name: props.user?.name || '',
     lastName: props.user?.last_name || '',
-    gender: props.user?.gender || 'Male',
+    genderTypeId: props.user?.user_detail?.gender_type_id || null,
     birthDate: props.user?.user_detail?.birthdate || new Date(),
     phone: props.user?.phone || '',
     address: props.user?.user_detail?.address || '',
@@ -371,7 +369,7 @@ const { errors, validate } = useForm({
 const { value: id } = useField('id')
 const { value: name } = useField('name')
 const { value: lastName } = useField('lastName')
-const { value: gender } = useField('gender')
+const { value: genderTypeId } = useField<number | null>('genderTypeId')
 const { value: birthDate } = useField<Date>('birthDate')
 const { value: phone } = useField('phone')
 const { value: address } = useField('address')
@@ -386,18 +384,14 @@ const validateForm = async () => {
 }
 
 const getFormData = () => {
-  const formattedBirthDate = birthDate.value
-    ? birthDate.value instanceof Date
-      ? birthDate.value.toISOString().split('T')[0]
-      : birthDate.value
-    : null
+  const formattedBirthDate = toApiDateString(birthDate.value)
 
 
   const formData = {
     id: id.value,
     name: name.value,
     lastName: lastName.value,
-    gender: gender.value,
+    genderTypeId: genderTypeId.value,
     birthDate: formattedBirthDate,
     phone: phone.value,
     address: address.value,
@@ -415,6 +409,7 @@ const getGeneralData = async () => {
     loading.value = true
     const response = await userService.getGeneralData()
     roles.value = response.roles
+    genderTypes.value = response.genderTypes || []
   } catch (error) {
     console.error('Error loading form data:', error)
   } finally {

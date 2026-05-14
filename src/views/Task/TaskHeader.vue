@@ -477,13 +477,7 @@ const taskGroups = [
 ]
 
 import flatPickr from 'vue-flatpickr-component'
-
-const flatpickrConfig = {
-  dateFormat: 'Y-m-d',
-  altInput: true,
-  altFormat: 'F j, Y',
-  wrap: true,
-}
+import { flatpickrConfig } from '@/utils/dateUtils'
 
 const formData = reactive({
   date: '',
