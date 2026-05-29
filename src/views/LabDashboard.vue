@@ -25,7 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import DashboardMetrics from '@/components/dashboard/DashboardMetrics.vue'
 import ReservationTrendChart from '@/components/dashboard/ReservationTrendChart.vue'
@@ -35,7 +34,5 @@ import { useDashboardStore } from '@/stores/dashboardStore'
 
 const store = useDashboardStore()
 
-onMounted(() => {
-  store.fetchDashboardData()
-})
+store.fetchDashboardData()
 </script>
