@@ -18,7 +18,6 @@
           <select
             v-model="perPage"
             class="w-full py-2 pl-3 pr-8 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-lg appearance-none dark:bg-dark-900 h-9 bg-none shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-            :class="{ 'text-gray-500 dark:text-gray-400': perPage !== '' }"
           >
             <option value="50" class="text-gray-500 dark:bg-gray-900 dark:text-gray-400">50</option>
             <option value="20" class="text-gray-500 dark:bg-gray-900 dark:text-gray-400">20</option>
@@ -569,11 +568,23 @@ import Spinner from '../common/Spinner.vue'
 import { useTable } from '@/utils/useTable'
 import { formatDateShort } from '@/utils/dateUtils'
 
+type UserRow = {
+  id: string | number
+  name: string
+  last_name: string
+  email?: string
+  phone?: string
+  role?: {
+    name?: string
+  }
+  selected?: boolean
+}
+
 const commonStore = useCommonStore()
 const loading = ref(false)
 
-const customUserFilter = (users, searchTerm) => {
-  return users.filter((person) => {
+const customUserFilter = (users: UserRow[], searchTerm: string) => {
+  return users.filter((person: UserRow) => {
     const fullName = `${person.name} ${person.last_name}`.toLowerCase()
     return (
       fullName.includes(searchTerm) ||
@@ -621,7 +632,7 @@ const redirectToCreate = () => {
   router.push({ name: 'createUser' })
 }
 
-const redirectToEdit = (id: string) => {
+const redirectToEdit = (id: string | number) => {
   router.push({ name: 'editUser', params: { id } })
 }
 
@@ -654,9 +665,9 @@ const deleteMultipleUsers = async () => {
     commonStore.deleting = true
     const usersToDelete = selectedItems.value
 
-    const deletePromises = usersToDelete.map((user) => {
+    const deletePromises = usersToDelete.map((user: UserRow) => {
       return userService
-        .deleteUser(user.id)
+        .deleteUser(user.id.toString())
         .then((response) => {
           console.log(`User ${user.name} deleted successfully`)
           return { success: true, userId: user.id, response }
@@ -667,16 +678,14 @@ const deleteMultipleUsers = async () => {
         })
     })
 
-    const results = await Promise.allSettled(deletePromises)
-    const successfulDeletions = results.filter(
-      (result) => result.status === 'fulfilled' && result.value.success,
-    ).length
+    const results = await Promise.all(deletePromises)
+    const successfulDeletions = results.filter((result) => result.success).length
 
     const successfullyDeletedIds = results
-      .filter((result) => result.status === 'fulfilled' && result.value.success)
-      .map((result) => result.value.userId)
+      .filter((result) => result.success)
+      .map((result) => result.userId)
 
-    updateData(data.value.filter((user) => !successfullyDeletedIds.includes(user.id)))
+    updateData(data.value.filter((user: UserRow) => !successfullyDeletedIds.includes(user.id)))
 
     closeWarningModal()
     if (successfulDeletions === usersToDelete.length) {
@@ -699,7 +708,7 @@ const deleteUser = async () => {
   try {
     commonStore.deleting = true
     const response = await userService.deleteUser(selectedUserToDelete.value.id.toString())
-    updateData(data.value.filter((user) => user.id !== selectedUserToDelete.value.id))
+    updateData(data.value.filter((user: UserRow) => user.id !== selectedUserToDelete.value.id))
     closeSuccessModal()
     closeWarningModal()
     openSuccessModal(response.message || 'User deleted successfully!')

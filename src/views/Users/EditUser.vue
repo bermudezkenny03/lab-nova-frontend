@@ -116,16 +116,26 @@ const submitForm = async () => {
   }
   try {
     submitting.value = true
-    const userData = formUserRef.value.getFormData()
+    const userData = formUserRef.value.getFormData() as {
+      name: string
+      lastName: string
+      email: string
+      phone: string
+      password?: string
+      roleId: string | number
+      genderTypeId: number | null
+      birthDate: string | null
+      address: string
+      addonAddress: string
+    }
+    const password = userData.password?.trim()
 
     const payload = {
       name: userData.name,
       last_name: userData.lastName,
       email: userData.email,
       phone: userData.phone,
-      ...(userData.password && userData.password.trim() !== ''
-        ? { password: userData.password }
-        : {}),
+      ...(password ? { password } : {}),
       status: true,
       role_id: userData.roleId,
 

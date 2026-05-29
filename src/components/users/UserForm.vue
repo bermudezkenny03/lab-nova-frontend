@@ -319,7 +319,6 @@ import flatPickr from 'vue-flatpickr-component'
 import * as yup from 'yup'
 import { useField, useForm } from 'vee-validate'
 import { userService } from '@/services/userService'
-import SpinnerSelect from '../common/SpinnerSelect.vue'
 import { flatpickrConfig, toApiDateString } from '@/utils/dateUtils'
 
 const props = defineProps({
