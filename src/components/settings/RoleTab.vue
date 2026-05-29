@@ -180,7 +180,7 @@ const getAllModulePermissions = (module: any) => {
   return {
     parent: [], // Ya no necesitamos los permisos del padre
     children: children.reduce(
-      (acc, child) => {
+      (acc: Record<string, string[]>, child: any) => {
         acc[child.slug] = rolePermissions.value[child.slug] || []
         return acc
       },

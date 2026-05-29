@@ -1,7 +1,18 @@
 import { ref, computed } from 'vue'
 
-export function useTable(initialData = [], options = {}) {
-  const data: any = ref(initialData)
+type SortDirection = 'asc' | 'desc'
+
+interface TableOptions {
+  searchFields?: string[]
+  defaultSortColumn?: string
+  defaultSortDirection?: SortDirection
+  perPage?: number
+  customFilter?: (data: any[], searchTerm: string) => any[]
+  customSort?: (data: any[], sortColumn: string, sortDirection: SortDirection) => any[]
+}
+
+export function useTable(initialData: any[] = [], options: TableOptions = {}) {
+  const data = ref<any[]>(initialData)
 
   const search = ref('')
   const searchFields = options.searchFields || ['name']
@@ -23,8 +34,8 @@ export function useTable(initialData = [], options = {}) {
       return options.customFilter(data.value, searchLower)
     }
 
-    return data.value.filter((item) => {
-      return searchFields.some((field) => {
+    return data.value.filter((item: any) => {
+      return searchFields.some((field: string) => {
         const fieldValue = item[field]
         return fieldValue && String(fieldValue).toLowerCase().includes(searchLower)
       })
@@ -38,7 +49,7 @@ export function useTable(initialData = [], options = {}) {
       return options.customSort(dataToSort, sortColumn.value, sortDirection.value)
     }
 
-    return [...dataToSort].sort((a, b) => {
+    return [...dataToSort].sort((a: any, b: any) => {
       const modifier = sortDirection.value === 'asc' ? 1 : -1
 
       const aValue = a[sortColumn.value]
@@ -85,10 +96,10 @@ export function useTable(initialData = [], options = {}) {
   })
 
   const selectedItems = computed(() => {
-    return data.value.filter((item) => item.selected)
+    return data.value.filter((item: any) => item.selected)
   })
 
-  const goToPage = (page) => {
+  const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page
     }
@@ -106,7 +117,7 @@ export function useTable(initialData = [], options = {}) {
     }
   }
 
-  const sortBy = (column) => {
+  const sortBy = (column: string) => {
     if (sortColumn.value === column) {
       sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
     } else {
@@ -116,14 +127,14 @@ export function useTable(initialData = [], options = {}) {
   }
 
   const toggleSelectAll = () => {
-    data.value.forEach((item) => (item.selected = selectAll.value))
+    data.value.forEach((item: any) => (item.selected = selectAll.value))
   }
 
   const updateSelectAll = () => {
-    selectAll.value = data.value.length > 0 && data.value.every((item) => item.selected)
+    selectAll.value = data.value.length > 0 && data.value.every((item: any) => item.selected)
   }
 
-  const updateData = (newData) => {
+  const updateData = (newData: any[]) => {
     data.value = newData
     currentPage.value = 1
   }

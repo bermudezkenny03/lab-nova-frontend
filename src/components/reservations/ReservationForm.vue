@@ -222,8 +222,8 @@ const { errors, validate } = useForm({
 const { value: id } = useField<number | null>('id')
 const { value: user_id } = useField<number | null>('user_id')
 const { value: equipment_id } = useField<number | null>('equipment_id')
-const { value: start_time } = useField<string>('start_time')
-const { value: end_time } = useField<string>('end_time')
+const { value: start_time } = useField<Date | string | null>('start_time')
+const { value: end_time } = useField<Date | string | null>('end_time')
 const { value: notes } = useField<string | null>('notes')
 
 watch(
@@ -251,8 +251,8 @@ const getFormData = () => {
     id: id.value,
     user_id: user_id.value,
     equipment_id: equipment_id.value,
-    start_time: toApiDateTimeString(start_time.value),
-    end_time: toApiDateTimeString(end_time.value),
+    start_time: toApiDateTimeString(start_time.value) || '',
+    end_time: toApiDateTimeString(end_time.value) || '',
     notes: notes.value,
   }
 }

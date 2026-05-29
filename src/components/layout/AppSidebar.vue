@@ -140,6 +140,8 @@ const moduleIcons: Record<string, any> = {
   'access-management': UserGroupIcon,
 }
 
+const getModuleIcon = (slug?: string) => (slug ? moduleIcons[slug] : undefined) || GridIcon
+
 const dynamicMenuGroups = computed(() => {
   if (!authStore.isAuthenticated || !authStore.modules || authStore.modules.length === 0) {
     return []
@@ -160,14 +162,14 @@ const dynamicMenuGroups = computed(() => {
         }))
 
         menuItems.push({
-          icon: moduleIcons[module.slug] || GridIcon,
+          icon: getModuleIcon(module.slug),
           name: module.name,
           subItems: subItems,
         })
       }
     } else {
       menuItems.push({
-        icon: moduleIcons[module.slug] || GridIcon,
+        icon: getModuleIcon(module.slug),
         name: module.name,
         path: module.route,
       })
@@ -216,14 +218,16 @@ const isSubmenuOpen = (groupIndex: number, itemIndex: number): boolean => {
   return false
 }
 
-const startTransition = (el: HTMLElement): void => {
-  el.style.height = 'auto'
-  const height = el.scrollHeight
-  el.style.height = '0px'
-  el.style.height = height + 'px'
+const startTransition = (el: Element): void => {
+  const element = el as HTMLElement
+  element.style.height = 'auto'
+  const height = element.scrollHeight
+  element.style.height = '0px'
+  element.style.height = height + 'px'
 }
 
-const endTransition = (el: HTMLElement): void => {
-  el.style.height = ''
+const endTransition = (el: Element): void => {
+  const element = el as HTMLElement
+  element.style.height = ''
 }
 </script>

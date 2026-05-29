@@ -4,6 +4,7 @@ export interface Module {
     slug?: string
     icon?: string
     route?: string
+    show_in_sidebar?: boolean
     children?: Module[]
     permissions: any[]
 }
